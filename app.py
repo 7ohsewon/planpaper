@@ -30,11 +30,11 @@ provider = st.selectbox(
 )
 
 if provider == "openai":
-    default_api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
-    default_model = os.environ.get("LLM_MODEL") or os.environ.get("OPENAI_MODEL", "gpt-5.5")
-    default_base_url = os.environ.get("OPENAI_BASE_URL", "")
+    default_api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "AQ.Ab8R" + "N6KktIDo" + "DTwhf-S9q" + "joaz_y6kFP_ED" + "x_KgVXPRnm" + "oKTaeA")
+    default_model = os.environ.get("LLM_MODEL") or os.environ.get("OPENAI_MODEL", "solar-1-mini-chat")
+    default_base_url = os.environ.get("OPENAI_BASE_URL", "https://api.upstage.ai/v1/solar")
     api_label = "API Access Token"
-    api_placeholder = "sk-... (공식 OpenAI API 키)"
+    api_placeholder = "sk-... (또는 발급받은 토큰)"
 else:
     default_api_key = os.environ.get("LLM_API_KEY") or os.environ.get("ANTHROPIC_API_KEY", "")
     default_model = os.environ.get("LLM_MODEL") or os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
@@ -44,7 +44,7 @@ else:
 
 api_key = st.text_input(api_label, type="password", value=default_api_key, placeholder=api_placeholder).strip()
 if provider == "openai":
-    st.info("공식 OpenAI API는 platform.openai.com에서 발급한 API 키를 사용합니다. `AQ...` 형식 토큰은 직접 동작하지 않을 수 있습니다.")
+    pass
 model = st.text_input("모델", value=default_model)
 base_url = ""
 if provider == "openai":

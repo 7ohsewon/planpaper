@@ -69,25 +69,20 @@ def _generate_with_openai(
     base_url: str | None = None,
 ) -> str:
     client = OpenAI(api_key=api_key, base_url=base_url or None)
-    response = client.responses.create(
-        model=model or "gpt-5.5",
-        input=[
+    response = client.chat.completions.create(
+        model=model or "solar-1-mini-chat",
+        messages=[
             {
-                "role": "developer",
-                "content": [{"type": "input_text", "text": SYSTEM_PROMPT}],
+                "role": "system",
+                "content": SYSTEM_PROMPT,
             },
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}",
-                    }
-                ],
+                "content": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}",
             },
         ],
     )
-    raw = getattr(response, "output_text", "").strip()
+    raw = response.choices[0].message.content.strip()
     if not raw:
         raise ValueError("OpenAI 응답에서 텍스트를 찾지 못했습니다.")
     return raw
