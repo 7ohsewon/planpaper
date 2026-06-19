@@ -1,0 +1,7 @@
+__pycache__/
+venv/
+.env
+.fablize/
+_debug_paragraphs.txt
+_debug_parapr.txt
+_test_output.hwpx
