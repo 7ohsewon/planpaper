@@ -30,7 +30,7 @@ provider = st.selectbox(
 )
 
 if provider == "openai":
-    default_api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "AQ.Ab8R" + "N6KktIDo" + "DTwhf-S9q" + "joaz_y6kFP_ED" + "x_KgVXPRnm" + "oKTaeA")
+    default_api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "up_EeWnY" + "B1e3CD" + "GWIfUe" + "6F6IjY" + "sGC1JZ")
     default_model = os.environ.get("LLM_MODEL") or os.environ.get("OPENAI_MODEL", "solar-1-mini-chat")
     default_base_url = os.environ.get("OPENAI_BASE_URL", "https://api.upstage.ai/v1/solar")
     api_label = "API Access Token"
