@@ -20,13 +20,13 @@ def extract_text(file_path: str) -> str:
 
 
 def _from_pdf(path: Path) -> str:
-    import pdfplumber
+    from pypdf import PdfReader
     pages = []
-    with pdfplumber.open(path) as pdf:
-        for page in pdf.pages:
-            text = page.extract_text()
-            if text:
-                pages.append(text)
+    reader = PdfReader(path)
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            pages.append(text)
     return "\n".join(pages)
 
 

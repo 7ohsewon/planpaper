@@ -1,8 +1,5 @@
-# LLM API를 호출해 기안문 구조화 초안을 생성하는 모듈
 import json
-
-import anthropic
-from openai import OpenAI
+import requests
 
 SYSTEM_PROMPT = """당신은 한국 공공기관의 기안문(품의서) 작성 전문가입니다.
 사용자가 제공한 원문 내용을 분석하여 기안문 형식으로 변환합니다.
@@ -47,19 +44,25 @@ def generate_draft(
 
 
 def _generate_with_anthropic(source_text: str, api_key: str, model: str | None = None) -> str:
-    client = anthropic.Anthropic(api_key=api_key)
-    message = client.messages.create(
-        model=model or "claude-sonnet-4-6",
-        max_tokens=2048,
-        system=SYSTEM_PROMPT,
-        messages=[
-            {
-                "role": "user",
-                "content": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}",
-            }
-        ],
-    )
-    return message.content[0].text.strip()
+    url = "https://api.anthropic.com/v1/messages"
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+        "anthropic-dangerous-direct-browser-access": "true"
+    }
+    data = {
+        "model": model or "claude-3-sonnet-20240229",
+        "max_tokens": 2048,
+        "system": SYSTEM_PROMPT,
+        "messages": [
+            {"role": "user", "content": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}"}
+        ]
+    }
+    resp = requests.post(url, headers=headers, json=data)
+    if not resp.ok:
+        raise ValueError(f"Anthropic API 오류: {resp.status_code} - {resp.text}")
+    return resp.json()["content"][0]["text"].strip()
 
 
 def _generate_with_openai(
@@ -68,24 +71,27 @@ def _generate_with_openai(
     model: str | None = None,
     base_url: str | None = None,
 ) -> str:
-    client = OpenAI(api_key=api_key, base_url=base_url or None)
-    response = client.chat.completions.create(
-        model=model or "solar-1-mini-chat",
-        messages=[
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}",
-            },
-        ],
-    )
-    raw = response.choices[0].message.content.strip()
-    if not raw:
-        raise ValueError("OpenAI 응답에서 텍스트를 찾지 못했습니다.")
-    return raw
+    url = base_url or "https://api.openai.com/v1"
+    if url.endswith("/"):
+        url = url[:-1]
+    if not url.endswith("/chat/completions"):
+        url = url + "/chat/completions"
+        
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": model or "solar-1-mini-chat",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"다음 내용을 기안문으로 작성해주세요:\n\n{source_text[:8000]}"}
+        ]
+    }
+    resp = requests.post(url, headers=headers, json=data)
+    if not resp.ok:
+        raise ValueError(f"OpenAI 호환 API 오류: {resp.status_code} - {resp.text}")
+    return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _parse_json(raw: str) -> dict:
